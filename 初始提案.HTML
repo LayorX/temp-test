@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社群平台概念互動導覽 (AI 增強版)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: 我設計了一個「概念探索器」單頁應用。結構分為：1. 核心理念（介紹問題與解方）；2. 三大指標互動區（使用頁籤和互動圖表，讓使用者能親手操作、理解各指標的計算與意義）；3. 介面預覽（模擬App的UI，將抽象概念具象化）；4. 挑戰與未來。這個結構將靜態報告轉化為一個動態的、引導式的學習體驗，讓使用者不只是閱讀，而是透過互動來探索和理解整個複雜的系統，這比單純陳列報告內容更能達到溝通效果。 -->
+    <!-- Visualization & Content Choices: 1. 貢獻值 -> 目標:變化 -> 圖表:線圖 -> 互動:按鈕模擬 -> 理由:視覺化時間衰減，展示動態性。 2. 信任值 -> 目標:關係 -> 圖表:長條圖 -> 互動:滑桿 -> 理由:讓抽象的權重對數曲線變得直觀可感。同時用HTML/CSS流程圖展示多層次查核。 3. 深度值 -> 目標:比較 -> 圖表:雷達圖/堆疊長條圖 -> 互動:按鈕切換 -> 理由:清晰對比不同用戶的思維廣度與觀點接觸比例。所有選擇均使用Chart.js或純HTML/CSS，確保無SVG/Mermaid。 -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f5f5f4; /* Warm Neutral: Stone 100 */
+            color: #292524; /* Stone 800 */
+        }
+        .tab-active {
+            background-color: #0c4a6e; /* Accent: Sky 900 */
+            color: #f0f9ff;
+        }
+        .tab-inactive {
+            background-color: #e7e5e4; /* Stone 200 */
+            color: #57534e; /* Stone 600 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 40vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 384px;
+            }
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0c4a6e;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-stone-800 text-white shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold">理性社群平台・概念導覽</h1>
+            <div class="hidden md:flex space-x-6">
+                <a href="#concept" class="hover:text-sky-300 transition duration-300">核心理念</a>
+                <a href="#metrics" class="hover:text-sky-300 transition duration-300">三大指標</a>
+                <a href="#preview" class="hover:text-sky-300 transition duration-300">介面預覽</a>
+                <a href="#challenges" class="hover:text-sky-300 transition duration-300">挑戰與未來</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
+            <a href="#concept" class="block py-2 hover:text-sky-300">核心理念</a>
+            <a href="#metrics" class="block py-2 hover:text-sky-300">三大指標</a>
+            <a href="#preview" class="block py-2 hover:text-sky-300">介面預覽</a>
+            <a href="#challenges" class="block py-2 hover:text-sky-300">挑戰與未來</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="concept" class="my-12 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center text-sky-900 mb-4">核心理念：打造高媒體識讀的社群</h2>
+            <p class="max-w-3xl mx-auto text-center text-stone-600 mb-12">
+                本專案旨在應對當前社會猖獗的假新聞、惡意抹黑與斷章取義。我們提出一個創新的社群平台，透過獨特的獎勵機制與使用者指標，鼓勵理性討論、包容多元聲音，最終建立一個高信任度的資訊交流空間。
+            </p>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-2xl font-bold mb-3 text-red-700">當前困境</h3>
+                    <ul class="space-y-3 text-stone-700">
+                        <li class="flex items-start"><span class="text-red-500 mr-3 text-2xl">⚠️</span><span>資訊可信度低，假新聞與謠言氾濫。</span></li>
+                        <li class="flex items-start"><span class="text-red-500 mr-3 text-2xl">🗣️</span><span>同溫層效應顯著，缺乏跨立場的理性對話。</span></li>
+                        <li class="flex items-start"><span class="text-red-500 mr-3 text-2xl">⚔️</span><span>討論容易流於情緒化發言與人身攻擊。</span></li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-2xl font-bold mb-3 text-green-700">我們的解方</h3>
+                    <ul class="space-y-3 text-stone-700">
+                        <li class="flex items-start"><span class="text-green-500 mr-3 text-2xl">🛡️</span><span>建立以「信任值」為核心的內容品質過濾機制。</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-3 text-2xl">🌐</span><span>透過「深度值」鼓勵用戶接觸多元觀點，打破同溫層。</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-3 text-2xl">📈</span><span>以「貢獻值」量化用戶參與度，區分真實用戶與機器人。</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-3 text-2xl">✨</span><span class="font-bold">整合 Gemini AI</span><span>，提供中立摘要與論點分析，輔助深度思考。</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="metrics" class="my-24 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center text-sky-900 mb-12">三大核心指標互動解析</h2>
+            
+            <div class="flex justify-center mb-8 border-b-2 border-stone-300">
+                <button data-tab="contribution" class="metric-tab tab-active text-lg font-semibold py-3 px-6 rounded-t-lg transition-colors duration-300">貢獻值</button>
+                <button data-tab="trust" class="metric-tab tab-inactive text-lg font-semibold py-3 px-6 rounded-t-lg transition-colors duration-300">信任值</button>
+                <button data-tab="depth" class="metric-tab tab-inactive text-lg font-semibold py-3 px-6 rounded-t-lg transition-colors duration-300">深度值</button>
+            </div>
+
+            <div id="contribution" class="metric-content">
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">貢獻值 (Contribution Value)</h3>
+                        <p class="text-stone-600 mb-4">衡量用戶的<strong>參與度</strong>與<strong>活躍度</strong>，作為一個動態的參與證明，有效區分長期用戶與潛在的機器人帳號。</p>
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h4 class="font-bold text-lg mb-2">計算方式：時間衰減模型</h4>
+                            <p class="mb-4 text-sm text-stone-500">貢獻值結合「每日活躍」與「歷史貢獻」。歷史貢獻會隨時間每日微幅衰減，鼓勵用戶保持持續活躍。</p>
+                            <p class="font-mono bg-stone-100 p-2 rounded">每日貢獻 = (每日活躍分數) + (昨日貢獻 * 0.99)</p>
+                            <button id="simulate-contribution" class="mt-4 w-full bg-sky-700 text-white py-2 px-4 rounded-lg hover:bg-sky-800 transition">模擬30天活躍/不活躍變化</button>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-lg">
+                        <div class="chart-container">
+                            <canvas id="contributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="trust" class="metric-content hidden">
+                 <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">信任值 (Trust Value)</h3>
+                        <p class="text-stone-600 mb-4">平台公信力的基石。衡量用戶發言與內容的<strong>可信度</strong>，高信任值用戶的評價具有更高權重。</p>
+                        
+                        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                            <h4 class="font-bold text-lg mb-2">互動模擬：權重評價的邊際效應</h4>
+                            <p class="mb-4 text-sm text-stone-500">用戶的信任值越高，其評價權重也越高，但增長幅度會遞減，以防權力過度集中。拖動下方滑桿，觀察權重變化。</p>
+                            <input id="trust-slider" type="range" min="1" max="1000" value="100" class="w-full h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer">
+                             <div class="text-center mt-2">當前模擬信任值: <span id="trust-value-display" class="font-bold">100</span></div>
+                        </div>
+
+                         <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h4 class="font-bold text-lg mb-2">機制：多層次事實查核流程</h4>
+                            <ol class="relative border-l border-stone-300 space-y-6 mt-4 ml-2">
+                                <li class="ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-sky-200 rounded-full -left-3 ring-4 ring-white">1</span>
+                                    <h5 class="font-semibold">用戶舉報</h5>
+                                    <p class="text-sm text-stone-500">任何用戶皆可標記「疑似虛假」內容。</p>
+                                </li>
+                                <li class="ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-sky-200 rounded-full -left-3 ring-4 ring-white">2</span>
+                                    <h5 class="font-semibold">社群審議</h5>
+                                    <p class="text-sm text-stone-500">達到舉報門檻後，由高標準用戶交叉審議。</p>
+                                </li>
+                                <li class="ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-sky-200 rounded-full -left-3 ring-4 ring-white">3</span>
+                                    <h5 class="font-semibold">專家仲裁</h5>
+                                    <p class="text-sm text-stone-500">重大爭議引入領域專家做最終判定。</p>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-lg">
+                        <div class="chart-container">
+                            <canvas id="trustChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="depth" class="metric-content hidden">
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">深度值 (Depth Value)</h3>
+                        <p class="text-stone-600 mb-4">打破同溫層的利器。衡量用戶的<strong>思維廣度</strong>，判斷其是否願意接觸並理解不同觀點。</p>
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h4 class="font-bold text-lg mb-2">視覺化呈現</h4>
+                            <p class="mb-4 text-sm text-stone-500">透過「主題涉獵廣度」與「觀點接觸比例」來呈現用戶的思維樣貌。點擊下方按鈕，切換不同類型的用戶檔案。</p>
+                            <div class="flex flex-wrap gap-2">
+                                <button data-profile="balanced" class="depth-profile-btn flex-1 bg-sky-700 text-white py-2 px-4 rounded-lg hover:bg-sky-800 transition">均衡型用戶</button>
+                                <button data-profile="specialist" class="depth-profile-btn flex-1 bg-stone-500 text-white py-2 px-4 rounded-lg hover:bg-stone-600 transition">專業型用戶</button>
+                                <button data-profile="echo-chamber" class="depth-profile-btn flex-1 bg-red-700 text-white py-2 px-4 rounded-lg hover:bg-red-800 transition">同溫層用戶</button>
+                            </div>
+                        </div>
+                         <div class="bg-white p-4 rounded-lg shadow-lg mt-6">
+                            <h4 class="text-center font-bold mb-2">觀點接觸比例</h4>
+                            <div class="chart-container !h-48">
+                                <canvas id="depthBarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-lg">
+                        <h4 class="text-center font-bold mb-2">主題涉獵廣度</h4>
+                        <div class="chart-container">
+                            <canvas id="depthRadarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="preview" class="my-24 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center text-sky-900 mb-12">介面預覽：AI 賦能的互動體驗</h2>
+            <p class="max-w-3xl mx-auto text-center text-stone-600 mb-12">
+                好的理念需要好的介面來承載。以下模擬整合了 Gemini AI 功能的 App 介面，展示用戶將如何與平台互動。
+            </p>
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="bg-stone-200 p-4 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4 text-center">主畫面：事件星球牆</h3>
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-lg shadow p-4 flex items-center space-x-4">
+                            <div class="text-4xl">🪐</div>
+                            <div>
+                                <h4 class="font-bold">某公司發布新產品</h4>
+                                <div class="flex items-center text-sm text-stone-500 mt-1">
+                                    <span class="bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full">科技</span>
+                                    <span class="ml-4">🔥 熱度: 85</span>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="bg-white rounded-lg shadow p-4 flex items-center space-x-4">
+                            <div class="text-4xl">🌍</div>
+                            <div>
+                                <h4 class="font-bold">某政治人物訪問某國</h4>
+                                <div class="flex items-center text-sm text-stone-500 mt-1">
+                                    <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded-full">政治</span>
+                                    <span class="ml-4">🔥 熱度: 98 (高爭議)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-stone-200 p-4 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4 text-center">星球內部：多元觀點論壇</h3>
+                     <div class="bg-white rounded-lg shadow p-4">
+                        <div class="border-b pb-3 mb-3">
+                            <h4 class="font-bold text-lg">中立事件描述</h4>
+                            <button id="generate-summary-btn" class="w-full text-left bg-sky-100 text-sky-800 p-2 rounded-lg hover:bg-sky-200 transition flex items-center justify-center mt-2">
+                                <span class="mr-2">✨</span>
+                                <span>AI 生成中立摘要</span>
+                            </button>
+                            <div id="summary-container" class="mt-2 text-sm text-stone-600 bg-stone-50 p-3 rounded-lg hidden"></div>
+                        </div>
+                        <div class="border-b pb-3 mb-3">
+                            <h4 class="font-bold text-lg">正方論述</h4>
+                            <p class="mt-1" id="argument-1">此產品的創新技術將引領市場潮流，其處理速度比上一代提升50%，並採用環保材料製成。</p>
+                            <div class="text-xs mt-2 flex justify-between items-center">
+                                <span>發文者：User_A (信850)</span>
+                                <button class="analyze-btn bg-transparent text-sky-700 text-xs hover:underline" data-target="argument-1">✨ AI 分析論點</button>
+                            </div>
+                        </div>
+                         <div class="border-b pb-3 mb-3">
+                            <h4 class="font-bold text-lg">反方論述</h4>
+                            <p class="mt-1" id="argument-2">其隱私政策存在巨大風險，用戶數據可能被用於第三方廣告。雖然速度快，但能耗問題並未解決。</p>
+                            <div class="text-xs mt-2 flex justify-between items-center">
+                                <span>發文者：User_B (信720)</span>
+                                <button class="analyze-btn bg-transparent text-sky-700 text-xs hover:underline" data-target="argument-2">✨ AI 分析論點</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="challenges" class="my-12 scroll-mt-20">
+             <h2 class="text-3xl font-bold text-center text-sky-900 mb-12">挑戰與未來展望</h2>
+             <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+                 <div class="bg-white p-6 rounded-lg shadow-md">
+                     <h3 class="text-2xl font-bold mb-3">關鍵挑戰</h3>
+                     <ul class="space-y-3 list-disc list-inside text-stone-700">
+                         <li><span class="font-semibold">演算法公正性：</span>指標計算需持續迭代，防止被濫用。</li>
+                         <li><span class="font-semibold">AI 成本與濫用：</span>需考慮 API 調用成本，並防止用戶濫用 AI 功能進行洗版或騷擾。</li>
+                         <li><span class="font-semibold">營運團隊角色：</span>需要人工介入處理重大爭議與監督 AI 內容。</li>
+                     </ul>
+                 </div>
+                 <div class="bg-white p-6 rounded-lg shadow-md">
+                     <h3 class="text-2xl font-bold mb-3">下一步建議</h3>
+                     <ul class="space-y-3 list-disc list-inside text-stone-700">
+                         <li><span class="font-semibold">確認MVP範圍：</span>初期聚焦在信任值建立與星球討論流程。</li>
+                         <li><span class="font-semibold">設計線框圖(Wireframe)：</span>繪製具體的UI/UX流程圖。</li>
+                         <li><span class="font-semibold">技術選型：</span>評估適合的後端、資料庫與App開發框架。</li>
+                     </ul>
+                 </div>
+             </div>
+        </section>
+    </main>
+    
+    <div id="analysis-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative animate-fade-in-up">
+            <button id="close-modal-btn" class="absolute top-3 right-3 text-stone-500 hover:text-stone-800">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h3 class="text-xl font-bold text-sky-900 mb-4">✨ AI 論點分析</h3>
+            <div id="modal-content" class="space-y-4 text-stone-700 max-h-[60vh] overflow-y-auto">
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-stone-800 text-white mt-16">
+        <div class="container mx-auto p-6 text-center text-stone-400">
+            <p>&copy; 2025 概念導覽。此為根據專案構想文件建立的互動式網頁。</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    const tabs = document.querySelectorAll('.metric-tab');
+    const contents = document.querySelectorAll('.metric-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(item => {
+                item.classList.remove('tab-active');
+                item.classList.add('tab-inactive');
+            });
+            tab.classList.add('tab-active');
+            tab.classList.remove('tab-inactive');
+
+            contents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tab.dataset.tab).classList.remove('hidden');
+        });
+    });
+
+    let contributionChart, trustChart, depthRadarChart, depthBarChart;
+
+    function createContributionChart() {
+        const ctx = document.getElementById('contributionChart').getContext('2d');
+        const initialData = {
+            labels: Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`),
+            datasets: [{
+                label: '活躍用戶貢獻值',
+                data: [],
+                borderColor: '#0ea5e9', // sky-500
+                backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                fill: true,
+                tension: 0.4,
+            }, {
+                label: '不活躍用戶貢獻值',
+                data: [],
+                borderColor: '#78716c', // stone-500
+                backgroundColor: 'rgba(120, 113, 108, 0.1)',
+                fill: true,
+                tension: 0.4,
+            }]
+        };
+
+        contributionChart = new Chart(ctx, {
+            type: 'line',
+            data: initialData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: '貢獻值隨時間變化模擬' },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: '貢獻值' } }
+                }
+            }
+        });
+        simulateContribution();
+    }
+    
+    function simulateContribution() {
+        let activeValue = 100;
+        let inactiveValue = 100;
+        const activeData = [];
+        const inactiveData = [];
+        const dailyActiveScore = 10;
+        const decayRate = 0.99;
+
+        for (let i = 0; i < 30; i++) {
+            activeValue = dailyActiveScore + (activeValue * decayRate);
+            inactiveValue = 0 + (inactiveValue * decayRate);
+            activeData.push(activeValue);
+            inactiveData.push(inactiveValue);
+        }
+        
+        contributionChart.data.datasets[0].data = activeData;
+        contributionChart.data.datasets[1].data = inactiveData;
+        contributionChart.update();
+    }
+
+    document.getElementById('simulate-contribution').addEventListener('click', simulateContribution);
+
+    function createTrustChart() {
+        const ctx = document.getElementById('trustChart').getContext('2d');
+        trustChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['評價權重'],
+                datasets: [{
+                    label: '評價權重',
+                    data: [calculateTrustWeight(100)],
+                    backgroundColor: ['#0c4a6e'], // sky-900
+                    borderColor: ['#0369a1'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: { display: true, text: '權重 (Max 100)' }
+                    }
+                },
+                plugins: {
+                    title: { display: true, text: '信任值與評價權重關係' },
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    function calculateTrustWeight(value) {
+        return Math.log10(value) * 33.3;
+    }
+
+    const trustSlider = document.getElementById('trust-slider');
+    const trustValueDisplay = document.getElementById('trust-value-display');
+
+    trustSlider.addEventListener('input', (e) => {
+        const value = e.target.value;
+        trustValueDisplay.textContent = value;
+        trustChart.data.datasets[0].data[0] = calculateTrustWeight(value);
+        trustChart.update();
+    });
+
+    function createDepthCharts() {
+        const radarCtx = document.getElementById('depthRadarChart').getContext('2d');
+        depthRadarChart = new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['科技', '政治', '娛樂', '財經', '生活', '學術'],
+                datasets: [{
+                    label: '用戶A',
+                    data: [],
+                    fill: true,
+                    backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                    borderColor: 'rgb(14, 165, 233)',
+                    pointBackgroundColor: 'rgb(14, 165, 233)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        pointLabels: { font: { size: 14 } },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
+                }
+            }
+        });
+
+        const barCtx = document.getElementById('depthBarChart').getContext('2d');
+        depthBarChart = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: ['觀點接觸'],
+                datasets: [
+                    { label: '正方觀點', data: [], backgroundColor: '#3b82f6' },
+                    { label: '反方觀點', data: [], backgroundColor: '#ef4444' }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true, display: false, ticks: { callback: value => value + '%' } },
+                    y: { stacked: true, display: false }
+                },
+                plugins: {
+                    title: { display: false },
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                if (context.parsed.x !== null) { label += context.parsed.x + '%';}
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        updateDepthCharts('balanced');
+    }
+
+    const depthProfiles = {
+        balanced: { radar: [80, 70, 60, 75, 85, 50], bar: [55, 45] },
+        specialist: { radar: [95, 20, 10, 80, 30, 90], bar: [60, 40] },
+        'echo-chamber': { radar: [10, 95, 80, 5, 20, 5], bar: [95, 5] }
+    };
+
+    function updateDepthCharts(profileName) {
+        const profile = depthProfiles[profileName];
+        depthRadarChart.data.datasets[0].data = profile.radar;
+        depthRadarChart.update();
+        depthBarChart.data.datasets[0].data = [profile.bar[0]];
+        depthBarChart.data.datasets[1].data = [profile.bar[1]];
+        depthBarChart.update();
+    }
+
+    document.querySelectorAll('.depth-profile-btn').forEach(btn => {
+        btn.addEventListener('click', () => { updateDepthCharts(btn.dataset.profile); });
+    });
+
+    createContributionChart();
+    createTrustChart();
+    createDepthCharts();
+
+    const apiKey = ""; 
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+    async function callGeminiAPI(prompt, maxRetries = 3) {
+        let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+        const payload = { contents: chatHistory };
+        
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Invalid response structure from API.");
+                }
+            } catch (error) {
+                if (i === maxRetries - 1) {
+                    console.error("API call failed after multiple retries:", error);
+                    return "AI 模型呼叫失敗，請稍後再試。";
+                }
+                const delay = Math.pow(2, i) * 1000;
+                await new Promise(res => setTimeout(res, delay));
+            }
+        }
+    }
+
+    const generateSummaryBtn = document.getElementById('generate-summary-btn');
+    const summaryContainer = document.getElementById('summary-container');
+    generateSummaryBtn.addEventListener('click', async () => {
+        summaryContainer.classList.remove('hidden');
+        summaryContainer.innerHTML = '<div class="flex items-center justify-center"><div class="loader"></div><span class="ml-3">AI 摘要生成中...</span></div>';
+        
+        const eventTitle = "某政治人物訪問某國";
+        const prompt = `請針對以下事件標題，生成一段約100字的客觀、中立、不帶偏見的事件摘要，專注於事實陳述，不包含任何猜測或評論：\n\n事件：「${eventTitle}」`;
+        
+        const summary = await callGeminiAPI(prompt);
+        summaryContainer.innerHTML = summary.replace(/\n/g, '<br>');
+    });
+
+    const modal = document.getElementById('analysis-modal');
+    const modalContent = document.getElementById('modal-content');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+
+    document.querySelectorAll('.analyze-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const targetId = btn.dataset.target;
+            const argumentText = document.getElementById(targetId).textContent;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modalContent.innerHTML = '<div class="flex items-center justify-center"><div class="loader"></div><span class="ml-3">AI 分析中...</span></div>';
+
+            const prompt = `請針對以下論述進行分析，你的目標是促進更深度的對話。請用繁體中文回答，並遵循以下結構：\n\n論述：「${argumentText}」\n\n1. **核心論點總結**：用一兩句話總結這段話的主要觀點。\n2. **可探索的問題**：提出2-3個開放性問題，這些問題能引導讀者從不同角度思考，或質疑論述的前提。\n\n請確保你的回應是中立且客觀的。`;
+            
+            const analysis = await callGeminiAPI(prompt);
+            modalContent.innerHTML = analysis.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/gs, '<strong class="font-bold text-sky-800">$1</strong>');
+        });
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    });
+});
+</script>
+</body>
+</html>
