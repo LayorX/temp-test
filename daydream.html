@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日光私語 | 一個溫柔的夢境</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fdfbfb;
+            color: #5a5a5a;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* 柔和的背景動畫 */
+        @keyframes warm-breeze {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .animated-warm-bg {
+            background: linear-gradient(-45deg, #fdfbfb, #ebedee, #f5f7fa, #fdfbfb);
+            background-size: 400% 400%;
+            animation: warm-breeze 20s ease infinite;
+        }
+
+        /* 柔和的卡片陰影 */
+        .soft-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            box-shadow: 0 8px 32px 0 rgba(188, 188, 188, 0.2);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .soft-card:hover {
+            box-shadow: 0 12px 40px 0 rgba(188, 188, 188, 0.3);
+            transform: translateY(-5px);
+        }
+
+        /* 連結按鈕樣式 */
+        .link-button {
+            transition: all 0.3s ease;
+            color: #8a6d5c;
+            position: relative;
+            padding-bottom: 4px;
+        }
+        .link-button::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            display: block;
+            margin-top: 5px;
+            right: 0;
+            background: #8a6d5c;
+            transition: width .3s ease;
+        }
+        .link-button:hover::after {
+            width: 100%;
+            left: 0;
+            background: #c5a896;
+        }
+    </style>
+</head>
+<body class="animated-warm-bg antialiased">
+    
+    <!-- 主容器 -->
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+
+        <!-- 頁首與返回連結 -->
+        <header class="text-center mb-16">
+            <h1 class="text-5xl md:text-7xl text-gray-700 tracking-tight">Daydream</h1>
+            <p class="text-gray-500 mt-2">陽光穿過百葉窗的縫隙，時間在此靜止。</p>
+            <a href="index.html" class="inline-block mt-6 text-sm font-semibold link-button">返回霓虹雨幕</a>
+        </header>
+
+        <!-- 主要內容：個人日誌風格 -->
+        <main>
+            <!-- 介紹區 -->
+            <div class="flex flex-col md:flex-row items-center soft-card rounded-2xl p-8 mb-12">
+                <img src="https://placehold.co/150x150/e2e8f0/64748b?text=Me" alt="個人頭像" class="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover shadow-lg mr-0 md:mr-8 mb-6 md:mb-0">
+                <div>
+                    <h2 class="text-3xl text-gray-800 mb-2">慵懶的午後</h2>
+                    <p class="text-gray-600 leading-relaxed">
+                        歡迎來到我的私密角落。這裡沒有城市的喧囂，只有陽光、咖啡和一些零碎的思緒。這是一個關於美、關於感受、關於存在的故事集。每一張照片，都是一個不願醒來的夢。
+                    </p>
+                </div>
+            </div>
+
+            <!-- 畫廊網格 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                
+                <!-- 圖片卡片 -->
+                <div class="soft-card rounded-2xl overflow-hidden group">
+                    <img src="https://placehold.co/600x800/faf5ff/a78bfa?text=Whisper" alt="作品一" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                </div>
+
+                <!-- 圖片卡片 -->
+                <div class="soft-card rounded-2xl overflow-hidden group sm:col-span-1 lg:col-span-2">
+                    <img src="https://placehold.co/800x600/fefce8/facc15?text=Sunlight" alt="作品二" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                </div>
+
+                <!-- 圖片卡片 -->
+                 <div class="soft-card rounded-2xl overflow-hidden group sm:col-span-1 lg:col-span-2">
+                    <img src="https://placehold.co/800x600/f0f9ff/7dd3fc?text=Laze" alt="作品三" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                </div>
+
+                <!-- 圖片卡片 -->
+                <div class="soft-card rounded-2xl overflow-hidden group">
+                    <img src="https://placehold.co/600x800/fff1f2/fb7185?text=Blush" alt="作品四" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                </div>
+
+            </div>
+        </main>
+
+        <!-- 頁腳 -->
+        <footer class="text-center mt-16 pt-8 border-t border-gray-200">
+            <p class="text-gray-400 text-sm">&copy; 2024 [你的名字或代號]. A gentle space.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
