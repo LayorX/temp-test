@@ -7,7 +7,7 @@
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="一個可以在賽博龐克的霓虹雨夜與溫柔的日光夢境之間自由切換的互動式個人網站。">
-    <meta name="keywords" content="網頁設計, 前端開發, 互動設計, 雙主題, 日夜切換, 賽博龐克, 生活美學">
+    <meta name="keywords" content="網頁設計, 前端開發, 互動設計, 雙主題, 日夜切換, 賽博龐克, 生活美學, 天氣模擬">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,6 +42,7 @@
             --icon-color: #a78bfa;
             --scrollbar-thumb: #4f46e5;
             --scrollbar-track: #111827;
+            --rain-color: rgba(170, 200, 255, 0.6);
         }
 
         body.theme-day {
@@ -74,6 +75,7 @@
             background-size: 400% 400%;
             transition: background-color 0.8s ease, color 0.8s ease;
             animation: gradient-animation 25s ease infinite;
+            overflow-x: hidden; /* 防止光束動畫產生滾動條 */
         }
 
         @keyframes gradient-animation {
@@ -82,7 +84,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* 讓所有元素都能平滑過渡 */
         * {
             transition: background-color 0.8s ease, color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
         }
@@ -92,9 +93,58 @@
         }
 
         /* * ===============================================
-         * 3. 元件樣式 (使用 CSS 變數)
+         * 3. 新增：天氣效果
          * ===============================================
         */
+        #weather-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        body:not(.theme-day) #weather-canvas {
+            opacity: 1;
+        }
+
+        body.theme-day::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(255, 255, 220, 0.15) 0%, rgba(255, 255, 220, 0) 40%);
+            z-index: 1;
+            pointer-events: none;
+            animation: sunbeam-move 60s linear infinite;
+            opacity: 1;
+            transition: opacity 0.8s ease;
+        }
+        body:not(.theme-day)::before {
+            opacity: 0;
+        }
+
+        @keyframes sunbeam-move {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10vw, 5vh) rotate(5deg); }
+            50% { transform: translate(5vw, 15vh) rotate(-5deg); }
+            75% { transform: translate(-5vw, 10vh) rotate(0deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        /* * ===============================================
+         * 4. 元件樣式 (使用 CSS 變數)
+         * ===============================================
+        */
+        .main-container {
+            position: relative;
+            z-index: 10;
+        }
         .themed-card {
             background: var(--card-bg);
             backdrop-filter: blur(10px);
@@ -107,16 +157,11 @@
             border-color: var(--card-hover-border);
             box-shadow: 0 10px 30px -5px rgba(0,0,0,0.1);
         }
-
         .themed-title {
             color: var(--text-primary);
             text-shadow: 0 0 8px var(--text-glow);
         }
-        
-        .themed-subtitle {
-            color: var(--text-secondary);
-        }
-
+        .themed-subtitle { color: var(--text-secondary); }
         .themed-button {
             background-color: var(--button-bg);
             color: white;
@@ -125,9 +170,7 @@
         .themed-button:hover {
              box-shadow: 0 0 10px var(--text-glow), 0 0 25px var(--text-glow);
         }
-
         .themed-icon { color: var(--icon-color); }
-
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
         ::-webkit-scrollbar-thumb {
@@ -137,87 +180,64 @@
         }
 
         /* * ===============================================
-         * 4. 新增：初始載入畫面與提示視窗
+         * 5. 初始載入畫面與提示視窗
          * ===============================================
         */
         #entry-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-primary);
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 1;
-            transition: opacity 0.8s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-primary); z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 1; transition: opacity 0.8s ease;
         }
-        #entry-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
+        #entry-overlay.hidden { opacity: 0; pointer-events: none; }
         #custom-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 3000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5); z-index: 3000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
-        #custom-modal.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        #custom-modal.visible { opacity: 1; pointer-events: auto; }
         .modal-content {
-            padding: 2rem;
-            border-radius: 1rem;
-            text-align: center;
+            padding: 2rem; border-radius: 1rem; text-align: center;
+            max-width: 90vw; width: 500px;
         }
-
+        #modal-text {
+            min-height: 5em; /* 預留空間防止跳動 */
+            text-align: left; white-space: pre-wrap;
+        }
         #theme-toggle-button {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            z-index: 1000;
-            background-color: var(--card-bg);
-            backdrop-filter: blur(10px);
+            position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1000;
+            background-color: var(--card-bg); backdrop-filter: blur(10px);
             border: 1px solid var(--card-border);
         }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- 新增：初始載入畫面 -->
+    <!-- 天氣效果畫布 -->
+    <canvas id="weather-canvas"></canvas>
+
+    <!-- 初始載入畫面 -->
     <div id="entry-overlay">
         <h1 class="text-4xl md:text-6xl font-black uppercase tracking-widest themed-title mb-8">晝夜協奏曲</h1>
         <button id="entry-button" class="px-8 py-3 rounded-full font-bold themed-button text-lg">進入世界</button>
     </div>
 
-    <!-- 新增：提示視窗 -->
+    <!-- 提示視窗 -->
     <div id="custom-modal">
         <div class="modal-content themed-card">
-            <p id="modal-text" class="text-lg mb-6"></p>
+            <h3 id="modal-title" class="text-2xl font-bold mb-4 font-serif"></h3>
+            <p id="modal-text" class="text-left mb-6"></p>
             <button id="modal-close-button" class="px-6 py-2 rounded-full font-bold themed-button">關閉</button>
         </div>
     </div>
 
-    <!-- 兩首不同主題的背景音樂 (已更新為更穩定的連結) -->
+    <!-- 音樂播放器 -->
     <audio id="night-music" loop preload="metadata" src="https://ia800809.us.archive.org/21/items/synthwave-music-pack/Synthwave%20Music%20Pack/Retrowave.mp3"></audio>
     <audio id="day-music" loop preload="metadata" src="https://ia800504.us.archive.org/3/items/AcousticFolkInstrumental_201804/Acoustic%20Folk%20Instrumental.mp3"></audio>
 
     <!-- 主容器 -->
-    <div class="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div class="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 main-container">
         <header class="w-full max-w-6xl mx-auto mb-12 text-center">
             <h1 id="main-title" class="text-4xl md:text-6xl font-black uppercase tracking-widest themed-title">NIGHTFALL</h1>
             <p id="main-subtitle" class="themed-subtitle mt-2 text-sm md:text-base">在光影與雨滴之間，探索無限可能。</p>
@@ -248,32 +268,100 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- 1. 獲取所有需要的 DOM 元素 ---
+        const body = document.body;
         const entryOverlay = document.getElementById('entry-overlay');
         const entryButton = document.getElementById('entry-button');
         const customModal = document.getElementById('custom-modal');
+        const modalTitle = document.getElementById('modal-title');
         const modalText = document.getElementById('modal-text');
         const modalCloseButton = document.getElementById('modal-close-button');
         const themeToggleButton = document.getElementById('theme-toggle-button');
         const sunIcon = document.getElementById('sun-icon');
         const moonIcon = document.getElementById('moon-icon');
-        const body = document.body;
         const nightMusic = document.getElementById('night-music');
         const dayMusic = document.getElementById('day-music');
         const mainTitle = document.getElementById('main-title');
         const mainSubtitle = document.getElementById('main-subtitle');
         const mainContent = document.getElementById('main-content');
         
-        // --- 2. 定義兩個主題的內容資料 ---
+        // --- 2. 天氣效果相關 ---
+        const canvas = document.getElementById('weather-canvas');
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
+        let raindrops = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        function createRaindrops() {
+            raindrops = [];
+            for (let i = 0; i < 200; i++) {
+                raindrops.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    length: Math.random() * 20 + 10,
+                    speed: Math.random() * 5 + 2,
+                });
+            }
+        }
+
+        function drawRain() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--rain-color').trim();
+            ctx.lineWidth = 1;
+            ctx.lineCap = 'round';
+            raindrops.forEach(p => {
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x, p.y + p.length);
+                ctx.stroke();
+            });
+            updateRain();
+        }
+
+        function updateRain() {
+            raindrops.forEach(p => {
+                p.y += p.speed;
+                if (p.y > canvas.height) {
+                    p.y = 0 - p.length;
+                    p.x = Math.random() * canvas.width;
+                }
+            });
+        }
+
+        function startRain() {
+            createRaindrops();
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            function animate() {
+                drawRain();
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function stopRain() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // --- 3. 定義兩個主題的內容資料 (已充實) ---
         const themes = {
             night: {
                 title: 'NIGHTFALL',
                 subtitle: '在光影與雨滴之間，探索無限可能。',
                 music: nightMusic,
                 cards: [
-                    { id: 'about', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>`, title: '關於我', desc: '一個遊走在程式碼與設計之間的數位遊魂。', button: '深入了解' },
-                    { id: 'gallery', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`, title: '視覺日誌', desc: '捕捉那些被遺忘在城市角落的光與影。', button: '查看畫廊' },
-                    { id: 'github', icon: `<svg class="w-16 h-16 themed-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.378.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd" /></svg>`, title: '程式碼倉庫', desc: '所有專案的原始碼都棲息於此。', button: '前往 GitHub' },
-                    { id: 'toggle', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`, title: '日光私語', desc: '切換到另一個維度，一個溫柔的夢境。', button: '切換主題' }
+                    { id: 'about', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>`, title: '數位遊魂', desc: '一個遊走在程式碼與設計之間的創造者。', button: '關於我', modalContent: `你好，我是 [你的名字]。\n\n白天，我是一名務實的工程師，用程式碼構建穩定的數位世界；夜晚，我化身為感性的設計師，在像素與光影中追尋美學的極致。\n\n我相信科技應當有溫度，而設計是傳遞溫度的最佳媒介。` },
+                    { id: 'spotlight', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>`, title: '專案聚焦', desc: '近期投入心血打造的互動式專案。', button: '查看詳情', modalContent: `專案名稱：互動式晝夜協奏曲\n\n技術棧：HTML5, CSS3 (Tailwind), Vanilla JavaScript\n\n核心特色：\n- 利用 CSS 變數實現無縫日夜主題切換。\n- 結合 Canvas 2D 與純 CSS 實現動態天氣效果。\n- 響應式設計，確保在各裝置上都有一致的沉浸體驗。\n\n設計理念：探索如何在單一頁面中融合兩種截然不同的藝術風格，並透過互動賦予其生命力。` },
+                    { id: 'tech', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>`, title: '技術棧', desc: '我用來構建世界的工具與魔法。', button: '我的軍火庫', modalContent: `前端：\n- JavaScript (ES6+), TypeScript\n- React, Vue, Svelte\n- Tailwind CSS, SCSS\n- Three.js, D3.js, WebGL\n\n後端：\n- Node.js, Python\n- Express, FastAPI\n- PostgreSQL, MongoDB, Redis\n\n其他：\n- Figma, Git, Docker` },
+                    { id: 'toggle', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`, title: '日光私語', desc: '切換到另一個維度，一個溫柔的夢境。', button: '進入夢境' }
                 ]
             },
             day: {
@@ -281,15 +369,15 @@
                 subtitle: '陽光穿過百葉窗的縫隙，時間在此靜止。',
                 music: dayMusic,
                 cards: [
-                    { id: 'story', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`, title: '慵懶的午後', desc: '歡迎來到我的私密角落，一個關於美的故事集。', button: '閱讀故事' },
-                    { id: 'photos', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>`, title: '光影畫廊', desc: '每一張照片，都是一個不願醒來的夢。', button: '欣賞作品' },
-                    { id: 'bookmarks', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>`, title: '靈感書籤', desc: '收藏那些觸動心弦的文字與設計。', button: '探索靈感' },
-                    { id: 'toggle', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>`, title: '霓虹雨幕', desc: '切換到另一個維度，一個充滿可能性的世界。', button: '切換主題' }
+                    { id: 'story', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`, title: '慵懶的午後', desc: '歡迎來到我的私密角落，一個關於美的故事集。', button: '閱讀故事', modalContent: `這是一個屬於慢時間的地方。\n\n在這裡，我用文字和相片記錄那些被日常忽略的微小美好：一杯手沖咖啡的香氣、午後陽光在書頁上投下的光斑、窗外貓咪打盹的慵懶姿態。\n\n願你也能在這裡找到片刻的寧靜。` },
+                    { id: 'photos', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>`, title: '光影畫廊', desc: '每一張照片，都是一個不願醒來的夢。', button: '欣賞作品', modalContent: `畫廊功能正在精心籌備中...\n\n未來，這裡將會是一個互動式的線上展覽，您可以點擊照片，查看背後的故事和拍攝參數。敬請期待！` },
+                    { id: 'writing', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>`, title: '隨筆散文', desc: '收藏那些觸動心弦的文字與設計。', button: '探索靈感', modalContent: `標題：論留白\n\n“設計中的留白，如同音樂中的休止符，它不發一語，卻勝過千言萬語。\n\n它給予元素呼吸的空間，引導視線的流動，更重要的是，它給予觀者思考和感受的餘裕。在資訊爆炸的時代，學會留白，不僅是一種設計技巧，更是一種生活的智慧。”` },
+                    { id: 'toggle', icon: `<svg class="w-16 h-16 themed-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>`, title: '霓虹雨幕', desc: '切換到另一個維度，一個充滿可能性的世界。', button: '返回都市' }
                 ]
             }
         };
 
-        // --- 3. 更新頁面內容的函式 ---
+        // --- 4. 更新頁面內容的函式 ---
         function updateContent(theme) {
             mainTitle.textContent = theme.title;
             mainSubtitle.textContent = theme.subtitle;
@@ -307,7 +395,7 @@
             });
         }
         
-        // --- 4. 主題切換的主要邏輯 ---
+        // --- 5. 主題切換的主要邏輯 ---
         function toggleTheme() {
             body.classList.toggle('theme-day');
             const isDay = body.classList.contains('theme-day');
@@ -317,71 +405,71 @@
                 moonIcon.classList.add('hidden');
                 updateContent(themes.day);
                 nightMusic.pause();
-                dayMusic.play().catch(e => console.error("音樂播放失敗，可能是使用者尚未與頁面互動。", e));
+                dayMusic.play().catch(e => {});
+                stopRain();
             } else {
                 sunIcon.classList.add('hidden');
                 moonIcon.classList.remove('hidden');
                 updateContent(themes.night);
                 dayMusic.pause();
-                nightMusic.play().catch(e => console.error("音樂播放失敗，可能是使用者尚未與頁面互動。", e));
+                nightMusic.play().catch(e => {});
+                startRain();
             }
         }
 
-        // --- 5. 提示視窗邏輯 ---
-        function showModal(message) {
-            modalText.textContent = message;
+        // --- 6. 提示視窗與打字機效果 ---
+        let typingInterval;
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalText.textContent = ''; // 清空
             customModal.classList.add('visible');
+
+            let i = 0;
+            if (typingInterval) clearInterval(typingInterval);
+            typingInterval = setInterval(() => {
+                if (i < message.length) {
+                    modalText.textContent += message.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typingInterval);
+                }
+            }, 30); // 打字速度
         }
         function hideModal() {
+            if (typingInterval) clearInterval(typingInterval);
             customModal.classList.remove('visible');
         }
 
-        // --- 6. 事件監聽器 ---
-        
-        // 初始進入按鈕
+        // --- 7. 事件監聽器 ---
         entryButton.addEventListener('click', () => {
             entryOverlay.classList.add('hidden');
-            // 這是啟動音樂的關鍵，由使用者第一次互動觸發
-            nightMusic.play().catch(e => console.error("音樂播放失敗:", e));
-        }, { once: true }); // 這個事件只觸發一次
+            nightMusic.play().catch(e => {});
+            startRain();
+        }, { once: true });
 
-        // 主題切換按鈕
         themeToggleButton.addEventListener('click', toggleTheme);
-
-        // 卡片按鈕 (事件委派)
+        
         mainContent.addEventListener('click', (e) => {
             if (e.target.matches('.themed-button')) {
                 const cardId = e.target.dataset.id;
-                switch (cardId) {
-                    case 'toggle':
-                        toggleTheme();
-                        break;
-                    case 'github':
-                        showModal('即將在新分頁中開啟 GitHub...');
-                        setTimeout(() => window.open('https://github.com', '_blank'), 1500);
-                        break;
-                    case 'gallery':
-                        showModal('畫廊功能正在全力開發中！');
-                        break;
-                    case 'about':
-                    case 'story':
-                        showModal('關於我的故事即將展開...');
-                        break;
-                    default:
-                        showModal('更多功能，敬請期待！');
+                const isDay = body.classList.contains('theme-day');
+                const currentTheme = isDay ? themes.day : themes.night;
+                const cardData = currentTheme.cards.find(c => c.id === cardId);
+
+                if (cardId === 'toggle') {
+                    toggleTheme();
+                } else if (cardData && cardData.modalContent) {
+                    showModal(cardData.title, cardData.modalContent);
                 }
             }
         });
 
-        // 關閉提示視窗
         modalCloseButton.addEventListener('click', hideModal);
         customModal.addEventListener('click', (e) => {
-            if (e.target === customModal) {
-                hideModal();
-            }
+            if (e.target === customModal) hideModal();
         });
 
-        // --- 7. 初始化頁面 ---
+        // --- 8. 初始化頁面 ---
         updateContent(themes.night);
     });
     </script>
