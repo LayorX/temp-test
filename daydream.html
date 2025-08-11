@@ -4,16 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>日光私語 | 一個溫柔的夢境</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="歡迎來到我的私密角落。一個關於陽光、慵懶與溫柔夢境的故事集。">
+    <meta name="keywords" content="攝影, 日誌, 設計, 故事, 生活美學, 溫柔, 陽光">
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Lightbox CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/basicLightbox/5.0.4/basicLightbox.min.css">
+
     <style>
+        /* Custom Cursor */
+        body { cursor: none; }
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 1px solid #c5a896;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background-color 0.2s, opacity 0.2s;
+            z-index: 9999;
+            opacity: 0;
+        }
+        .custom-cursor-dot {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background-color: #8a6d5c;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            opacity: 0;
+        }
+        body:hover .custom-cursor, body:hover .custom-cursor-dot { opacity: 1; }
+        a:hover ~ .custom-cursor, button:hover ~ .custom-cursor {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(197, 168, 150, 0.2);
+        }
+
         body {
             font-family: 'Noto Sans TC', sans-serif;
             background-color: #fdfbfb;
             color: #5a5a5a;
         }
 
-        h1, h2, h3 {
+        h1, h2, h3, .font-serif {
             font-family: 'Playfair Display', serif;
         }
 
@@ -27,21 +73,21 @@
         .animated-warm-bg {
             background: linear-gradient(-45deg, #fdfbfb, #ebedee, #f5f7fa, #fdfbfb);
             background-size: 400% 400%;
-            animation: warm-breeze 20s ease infinite;
+            animation: warm-breeze 40s ease infinite;
         }
 
         /* 柔和的卡片陰影 */
         .soft-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            box-shadow: 0 8px 32px 0 rgba(188, 188, 188, 0.2);
-            transition: all 0.3s ease-in-out;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 8px 32px 0 rgba(188, 188, 188, 0.15);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         .soft-card:hover {
-            box-shadow: 0 12px 40px 0 rgba(188, 188, 188, 0.3);
-            transform: translateY(-5px);
+            box-shadow: 0 14px 45px 0 rgba(188, 188, 188, 0.25);
+            transform: translateY(-8px);
         }
 
         /* 連結按鈕樣式 */
@@ -60,22 +106,98 @@
             margin-top: 5px;
             right: 0;
             background: #8a6d5c;
-            transition: width .3s ease;
+            transition: width .4s ease;
         }
         .link-button:hover::after {
             width: 100%;
             left: 0;
             background: #c5a896;
         }
+
+        /* 故事卡片 */
+        .story-card {
+            perspective: 1000px;
+        }
+        .story-card-image {
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .story-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
+            color: white;
+            padding: 2.5rem 1.5rem 1.5rem;
+            opacity: 0;
+            transform: translateY(25px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .group:hover .story-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* 懶散的淡入動畫 */
+        .fade-in-element {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1.2s cubic-bezier(0.25, 0.8, 0.25, 1), transform 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .fade-in-element.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* 圖片骨架屏 */
+        .skeleton-loader {
+            background-color: #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+        .skeleton-loader::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            transform: translateX(-100%);
+            background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.5) 60%, rgba(255, 255, 255, 0));
+            animation: shimmer 2s infinite;
+        }
+
+        /* 懸浮音樂播放器 */
+        #music-player {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 1000;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(197, 168, 150, 0.5); }
+            70% { box-shadow: 0 0 0 12px rgba(197, 168, 150, 0); }
+        }
+        #music-player.is-playing button {
+            animation: pulse 2.5s infinite;
+        }
     </style>
 </head>
 <body class="animated-warm-bg antialiased">
     
+    <div class="custom-cursor"></div>
+    <div class="custom-cursor-dot"></div>
+
+    <audio id="bg-music" class="hidden" preload="metadata"></audio>
+
     <!-- 主容器 -->
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
         <!-- 頁首與返回連結 -->
-        <header class="text-center mb-16">
+        <header class="text-center mb-16 fade-in-element">
             <h1 class="text-5xl md:text-7xl text-gray-700 tracking-tight">Daydream</h1>
             <p class="text-gray-500 mt-2">陽光穿過百葉窗的縫隙，時間在此靜止。</p>
             <a href="index.html" class="inline-block mt-6 text-sm font-semibold link-button">返回霓虹雨幕</a>
@@ -84,8 +206,8 @@
         <!-- 主要內容：個人日誌風格 -->
         <main>
             <!-- 介紹區 -->
-            <div class="flex flex-col md:flex-row items-center soft-card rounded-2xl p-8 mb-12">
-                <img src="https://placehold.co/150x150/e2e8f0/64748b?text=Me" alt="個人頭像" class="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover shadow-lg mr-0 md:mr-8 mb-6 md:mb-0">
+            <div class="flex flex-col md:flex-row items-center soft-card rounded-2xl p-8 mb-12 fade-in-element">
+                <img src="https://picsum.photos/seed/avatar/400/400" alt="個人頭像" class="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover shadow-lg mr-0 md:mr-8 mb-6 md:mb-0" loading="lazy">
                 <div>
                     <h2 class="text-3xl text-gray-800 mb-2">慵懶的午後</h2>
                     <p class="text-gray-600 leading-relaxed">
@@ -95,37 +217,187 @@
             </div>
 
             <!-- 畫廊網格 -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                
-                <!-- 圖片卡片 -->
-                <div class="soft-card rounded-2xl overflow-hidden group">
-                    <img src="https://placehold.co/600x800/faf5ff/a78bfa?text=Whisper" alt="作品一" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
-                </div>
-
-                <!-- 圖片卡片 -->
-                <div class="soft-card rounded-2xl overflow-hidden group sm:col-span-1 lg:col-span-2">
-                    <img src="https://placehold.co/800x600/fefce8/facc15?text=Sunlight" alt="作品二" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
-                </div>
-
-                <!-- 圖片卡片 -->
-                 <div class="soft-card rounded-2xl overflow-hidden group sm:col-span-1 lg:col-span-2">
-                    <img src="https://placehold.co/800x600/f0f9ff/7dd3fc?text=Laze" alt="作品三" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
-                </div>
-
-                <!-- 圖片卡片 -->
-                <div class="soft-card rounded-2xl overflow-hidden group">
-                    <img src="https://placehold.co/600x800/fff1f2/fb7185?text=Blush" alt="作品四" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
-                </div>
-
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 gallery">
+                <!-- 故事卡片將由 JS 動態生成 -->
             </div>
         </main>
 
         <!-- 頁腳 -->
-        <footer class="text-center mt-16 pt-8 border-t border-gray-200">
+        <footer class="text-center mt-16 pt-8 border-t border-gray-200 fade-in-element">
             <p class="text-gray-400 text-sm">&copy; 2024 [你的名字或代號]. A gentle space.</p>
         </footer>
 
     </div>
+
+    <!-- 懸浮音樂播放器 -->
+    <div id="music-player" class="fade-in-element">
+        <button id="music-toggle-btn" class="w-16 h-16 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center transition-transform duration-300 hover:scale-110" aria-label="播放/暫停音樂">
+            <svg id="play-icon" class="w-8 h-8 text-[#8a6d5c]" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+            <svg id="pause-icon" class="w-8 h-8 text-[#8a6d5c] hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
+        </button>
+    </div>
+    
+    <!-- Lightbox JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/basicLightbox/5.0.4/basicLightbox.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // --- 1. 自訂游標 ---
+            const cursor = document.querySelector('.custom-cursor');
+            const cursorDot = document.querySelector('.custom-cursor-dot');
+            window.addEventListener('mousemove', e => {
+                cursor.style.top = e.clientY + 'px';
+                cursor.style.left = e.clientX + 'px';
+                cursorDot.style.top = e.clientY + 'px';
+                cursorDot.style.left = e.clientX + 'px';
+            });
+
+            // --- 2. 懶散的淡入動畫 ---
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.transitionDelay = `${index * 150}ms`;
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in-element').forEach(el => observer.observe(el));
+
+            // --- 3. 音樂播放器 (MP3) ---
+            const player = document.getElementById('music-player');
+            const audio = document.getElementById('bg-music');
+            const musicBtn = document.getElementById('music-toggle-btn');
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+
+            const tracks = [
+                { url: 'https://ia800309.us.archive.org/29/items/silly_boy/Silly_Boy.mp3' },
+                { url: 'https://ia800203.us.archive.org/1/items/AcousticBlues/AcousticBlues.mp3' },
+                { url: 'https://ia800203.us.archive.org/19/items/For_Tomorrow/For_Tomorrow.mp3' }
+            ];
+            let currentTrackIndex = 0;
+
+            function loadTrack(index) {
+                audio.src = tracks[index].url;
+            }
+
+            musicBtn.addEventListener('click', () => {
+                if (audio.paused) {
+                    // 只有當音訊來源已設定時才播放
+                    if (!audio.src) {
+                        loadTrack(currentTrackIndex);
+                    }
+                    audio.play().catch(e => {
+                        console.error("音樂播放失敗:", e);
+                        alert("無法播放音樂。請檢查您的瀏覽器設定或網路連線。");
+                    });
+                } else {
+                    audio.pause();
+                }
+            });
+
+            audio.addEventListener('play', () => {
+                player.classList.add('is-playing');
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            });
+
+            audio.addEventListener('pause', () => {
+                player.classList.remove('is-playing');
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            });
+            
+            audio.addEventListener('ended', () => {
+                currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+                loadTrack(currentTrackIndex);
+                audio.play();
+            });
+            
+            audio.addEventListener('error', (e) => {
+                console.error("音訊錯誤:", e);
+                player.classList.add('opacity-50', 'pointer-events-none');
+                player.title = "音訊載入失敗";
+            });
+
+            // 初始化
+            loadTrack(currentTrackIndex);
+
+            // --- 4. 動態生成並加載畫廊 ---
+            const gallery = document.querySelector('.gallery');
+            const galleryItems = [
+                { seed: 'daydream1', size: '600/800', title: '窗邊絮語', desc: '一本書，一杯咖啡，就是一個完美的下午。', layout: '' },
+                { seed: 'daydream2', size: '800/600', title: '陽光拿鐵', desc: '光影在桌面跳舞，溫暖了每一口香醇。', layout: 'sm:col-span-1 lg:col-span-2' },
+                { seed: 'daydream3', size: '800/600', title: '白色夢境', desc: '在柔軟的床單裡，藏著不想結束的夢。', layout: 'sm:col-span-1 lg:col-span-2' },
+                { seed: 'daydream4', size: '600/800', title: '光與影', desc: '百葉窗投下的光，是時間的刻度。', layout: '' },
+                { seed: 'daydream5', size: '600/800', title: '掌心溫度', desc: '用雙手，感受這一刻的溫暖。', layout: '' },
+                { seed: 'daydream6', size: '800/600', title: '林間光斑', desc: '每一束光，都在講述一個古老的故事。', layout: 'sm:col-span-1 lg:col-span-2' },
+            ];
+
+            galleryItems.forEach(item => {
+                const [width, height] = item.size.split('/');
+                const largeImageUrl = `https://picsum.photos/seed/${item.seed}/1200/${Math.round(1200 * height / width)}`;
+                const thumbImageUrl = `https://picsum.photos/seed/${item.seed}/${width}/${height}`;
+
+                const cardContainer = document.createElement('a');
+                cardContainer.href = largeImageUrl;
+                cardContainer.className = `soft-card story-card rounded-2xl overflow-hidden group relative fade-in-element ${item.layout}`;
+                
+                const skeleton = document.createElement('div');
+                skeleton.className = 'skeleton-loader w-full h-full';
+                skeleton.style.paddingBottom = `${(height / width) * 100}%`;
+                
+                const image = new Image();
+                image.src = thumbImageUrl;
+                image.alt = item.title;
+                image.className = 'story-card-image w-full h-full object-cover absolute top-0 left-0 transition-opacity duration-500 opacity-0';
+                image.loading = 'lazy';
+
+                image.onload = () => {
+                    skeleton.remove();
+                    image.classList.remove('opacity-0');
+                };
+                
+                const overlay = document.createElement('div');
+                overlay.className = 'story-overlay';
+                overlay.innerHTML = `<h3 class="font-bold text-lg">${item.title}</h3><p class="text-sm">${item.desc}</p>`;
+
+                cardContainer.append(skeleton, image, overlay);
+                gallery.appendChild(cardContainer);
+                observer.observe(cardContainer);
+            });
+
+            // --- 5. 圖片燈箱 ---
+            gallery.addEventListener('click', function(event) {
+                const link = event.target.closest('a');
+                if (!link) return;
+                event.preventDefault();
+                const imageUrl = link.getAttribute('href');
+                basicLightbox.create(`<img src="${imageUrl}" style="max-width: 90vw; max-height: 90vh;">`).show();
+            });
+
+            // --- 6. 滑鼠視差效果 ---
+            gallery.addEventListener('mousemove', (e) => {
+                const card = e.target.closest('.story-card');
+                if (!card) return;
+                const image = card.querySelector('.story-card-image');
+                const { left, top, width, height } = card.getBoundingClientRect();
+                const x = (e.clientX - left) / width - 0.5;
+                const y = (e.clientY - top) / height - 0.5;
+                const rotateY = x * 8;
+                const rotateX = -y * 8;
+                image.style.transform = `scale(1.15) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            gallery.addEventListener('mouseleave', (e) => {
+                document.querySelectorAll('.story-card-image').forEach(image => {
+                    image.style.transform = 'scale(1) rotateX(0) rotateY(0)';
+                });
+            }, true);
+        });
+    </script>
 
 </body>
 </html>
