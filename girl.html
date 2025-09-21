@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 女神製造所 v6.3 (終極浪漫版)</title>
+    <title>AI 女神製造所 v7.0 (最終章)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,14 +55,30 @@
             color: white;
             text-shadow: 0 0 15px rgba(236, 72, 153, 0.7);
         }
-        #loading-silhouette {
+        .silhouette-container {
             height: 40vh;
             max-height: 400px;
             margin-bottom: 2rem;
+            position: relative;
+            width: 250px; /* Give a fixed width for positioning */
+        }
+        .loading-silhouette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
             opacity: 0;
             transition: opacity 1.5s ease-in-out;
+            filter: drop-shadow(0 0 15px rgba(236, 72, 153, 0.5));
+            animation: breathe 4s ease-in-out infinite;
         }
-        #loading-silhouette.visible {
+        @keyframes breathe {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.02); }
+        }
+        .loading-silhouette.visible {
             opacity: 0.5;
         }
         .main-container {
@@ -104,7 +120,7 @@
             position: relative;
             width: 100%;
             height: 100%;
-            transition: transform 0.6s;
+            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
             transform-style: preserve-3d;
         }
         .image-card.reveal .flipper {
@@ -365,6 +381,9 @@
             overflow-x: auto;
             white-space: nowrap;
             flex-shrink: 0;
+            height: 100px;
+            display: flex;
+            align-items: center;
         }
         .thumbnail {
             width: 60px;
@@ -387,7 +406,24 @@
             align-items: center;
             justify-content: center;
             color: #9ca3af;
-            height: 100%;
+            width: 100%;
+        }
+        #music-control {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 101;
+            background-color: rgba(31, 41, 55, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -398,8 +434,10 @@
     <div id="loading-overlay">
         <canvas id="loading-canvas"></canvas>
         <div id="loading-content">
-             <img id="loading-silhouette" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAoAAAAKACAYAAABn90xIAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAXwSURBVHja7d1BDQAgEMCw9/8/9hBFEaQ1EwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAwAIBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE...BAg/IAAAA4AIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAAIAAAACAA...AAA=" alt="女神剪影">
-            <h2 id="loading-text" class="text-2xl font-bold text-gray-300 mb-4">喚醒沉睡的繆斯...</h2>
+             <div class="silhouette-container">
+                <!-- Silhouettes will be injected here by JS -->
+             </div>
+            <h2 id="loading-text" class="text-2xl font-bold text-gray-300 mt-4">喚醒沉睡的繆斯...</h2>
         </div>
     </div>
 
@@ -416,6 +454,11 @@
     </div>
     <div id="slideshow-modal" class="modal">
         <div id="slideshow-container">
+            <div id="favorites-empty-state">
+                <p class="text-2xl mb-4">💔</p>
+                <p>殿堂還是空的</p>
+                <p class="text-sm text-gray-500">快去收藏您心儀的女神吧！</p>
+            </div>
             <img id="slideshow-image" src="">
             <button id="slideshow-prev" class="slideshow-nav">&lt;</button>
             <button id="slideshow-next" class="slideshow-nav">&gt;</button>
@@ -424,23 +467,22 @@
                 <button id="slideshow-close" class="slideshow-control-btn">&times;</button>
             </div>
         </div>
-        <div id="thumbnail-bar">
-             <div id="favorites-empty-state">
-                <p class="text-2xl mb-4">💔</p>
-                <p>殿堂還是空的</p>
-                <p class="text-sm text-gray-500">快去收藏您心儀的女神吧！</p>
-            </div>
-        </div>
+        <div id="thumbnail-bar"></div>
     </div>
     
     <audio id="tts-audio"></audio>
 
     <div class="main-container">
+        <button id="music-control">
+            <svg id="music-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+            <svg id="music-off-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M9 18V5l12-2v13M1 1l22 22"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+        </button>
+
         <header class="sticky-header">
             <div class="container mx-auto px-4">
                 <div class="text-center">
                     <h1 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500 mb-2">
-                        AI 女神製造所 6.2
+                        AI 女神製造所 7.0
                     </h1>
                 </div>
                 <div class="flex flex-col md:flex-row justify-center items-center gap-4 my-4">
@@ -466,7 +508,7 @@
 
     <script>
         // --- Global Scope & Constants ---
-        const apiKey = "AIzaSyBasaBU3srwcOqVQoyT7uZmtXPa4NRi6gU";
+        const apiKey = "";
         const styles = [
             { id: 'beach-silhouette', title: '🏖️ 沙灘剪影', description: '黃昏、唯美、充滿想像的浪漫詩篇', prompt: "A beautiful Asian model as a silhouette against a sunset on a deserted beach. She wears a light, semi-transparent white dress. The mood is romantic and beautiful." },
             { id: 'morning-lazy', title: '☀️ 晨光私房', description: '慵懶、私密、屬於你的女友感瞬間', prompt: "A sexy and curvy Asian model with a lazy aura on a messy bed. She wears an oversized men's shirt, unbuttoned, with black stockings. Morning sun streams through blinds, creating a soft, intimate, and seductive atmosphere." },
@@ -474,16 +516,19 @@
             { id: 'cyberpunk-warrior', title: '🤖 賽博龐克戰姬', description: '未來、科技、堅毅眼神中的致命吸引力', prompt: "Cyberpunk style. A female Asian warrior in glowing mechanical armor, holding an energy sword. The background is a futuristic city with flying vehicles and towering skyscrapers." }
         ];
         const randomKeywords = {
-            hair: ['platinum blonde hair', 'long wavy brown hair', 'short pink hair', 'silver bob cut', 'fiery red braids'],
-            outfit: ['in a leather jacket', 'wearing a silk gown', 'in a futuristic jumpsuit', 'wearing a traditional kimono', 'in a simple t-shirt and jeans'],
-            setting: ['in a neon-lit tokyo street', 'in a lush green forest', 'on a rooftop overlooking the city', 'inside a cozy cafe', 'in a baroque-style room'],
-            artStyle: ['cinematic lighting', 'fantasy art style', 'oil painting style', 'vaporwave aesthetic', 'dramatic lighting']
+            hair: ['platinum blonde hair', 'long wavy brown hair', 'short pink hair', 'silver bob cut', 'fiery red braids', 'messy bun', 'sleek ponytail'],
+            outfit: ['in a leather jacket', 'wearing a silk gown', 'in a futuristic jumpsuit', 'in a traditional kimono', 'in a simple t-shirt and jeans', 'wearing sheer lingerie', 'in a lace thong', 'wearing thigh-high stockings', 'in a wet see-through shirt'],
+            setting: ['in a neon-lit tokyo street', 'in a lush green forest', 'on a rooftop overlooking the city', 'inside a cozy cafe', 'in a baroque-style room', 'in a sun-drenched bedroom', 'in the pouring rain'],
+            artStyle: ['cinematic lighting', 'fantasy art style', 'oil painting style', 'vaporwave aesthetic', 'dramatic lighting', 'soft focus', 'lens flare'],
+            bodyDetails: ['glistening skin', 'plump lips', 'slender waist', 'long legs', 'dewy skin', 'wet and glossy lips', 'curvaceous body'],
+            expression: ['blushing shyly', 'seductive gaze', 'a playful wink', 'a mysterious smile', 'a look of longing', 'a shy glance'],
+            mood: ['alluring', 'charming', 'enchanting', 'sultry', 'innocent but tempting', 'sun-kissed and radiant', 'captivating men\'s gaze']
         };
 
         // --- DOM Elements ---
         const loadingOverlay = document.getElementById('loading-overlay');
         const loadingText = document.getElementById('loading-text');
-        const loadingSilhouette = document.getElementById('loading-silhouette');
+        const silhouetteContainer = document.querySelector('.silhouette-container');
         const tabNavigation = document.getElementById('tab-navigation');
         const styleSectionsContainer = document.getElementById('style-sections');
         const messageBox = document.getElementById('message-box');
@@ -500,6 +545,9 @@
         const slideshowModal = document.getElementById('slideshow-modal');
         const slideshowImage = document.getElementById('slideshow-image');
         const thumbnailBar = document.getElementById('thumbnail-bar');
+        const musicControl = document.getElementById('music-control');
+        const musicOnIcon = document.getElementById('music-on-icon');
+        const musicOffIcon = document.getElementById('music-off-icon');
 
         // --- State Management ---
         let isGenerating = false;
@@ -508,6 +556,8 @@
         let isTtsGenerating = false;
         let favorites = [];
         let currentSlideshowIndex = 0;
+        let musicPlayer = null;
+        let isMusicPlaying = false;
         
         // --- Sound Engine ---
         const sounds = {
@@ -577,7 +627,11 @@
             generateOneBtn.addEventListener('click', () => handleImageGeneration(1));
             generateFourBtn.addEventListener('click', () => handleImageGeneration(4));
             favoritesBtn.addEventListener('click', openSlideshow);
+            musicControl.addEventListener('click', toggleMusic);
 
+            slideshowModal.addEventListener('click', (e) => {
+                if(e.target === slideshowModal) slideshowModal.classList.remove('show');
+            });
             document.getElementById('slideshow-close').addEventListener('click', () => slideshowModal.classList.remove('show'));
             document.getElementById('slideshow-unfavorite').addEventListener('click', unfavoriteCurrentSlide);
             document.getElementById('slideshow-next').addEventListener('click', () => navigateSlideshow(1));
@@ -604,7 +658,7 @@
         }
         
         async function generateInitialImages() {
-            loadingSilhouette.classList.add('visible');
+            startSilhouetteAnimation();
             for (let i = 0; i < styles.length; i++) {
                 const style = styles[i];
                 loadingText.textContent = `正在遇見第 ${i + 1} 位女神... (${style.title})`;
@@ -646,7 +700,7 @@
                     </div>
                     <div class="card-face card-back">
                         <div class="image-card-img-wrapper">
-                            <img src="${src}" alt="${style.title} AI 生成圖片" onerror="this.closest('.image-card').innerHTML = '<p class=\\'text-red-400\\'>圖片載入失敗</p>';">
+                            <img src="${src}" alt="${style.title} AI 生成圖片" loading="lazy">
                         </div>
                         <div class="card-footer">
                              <button class="story-btn">生成故事 ✨</button>
@@ -667,18 +721,20 @@
                  imageCard.querySelector('.flipper').innerHTML = '<p class="text-red-400 p-4 text-center">圖片載入失敗</p>';
             };
 
-            imageCard.querySelector('.image-card-img-wrapper').addEventListener('click', () => {
-                modalImage.src = src;
-                imageModal.classList.add('show');
+            // Event delegation for card actions
+            imageCard.addEventListener('click', (e) => {
+                if (e.target.closest('.story-btn')) {
+                    e.stopPropagation();
+                    handleStoryGeneration(style);
+                } else if (e.target.closest('.like-btn')) {
+                    e.stopPropagation();
+                    toggleFavorite(imageData, e.target.closest('.like-btn'));
+                } else if (e.target.closest('.image-card-img-wrapper')) {
+                    modalImage.src = src;
+                    imageModal.classList.add('show');
+                }
             });
-            imageCard.querySelector('.story-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                handleStoryGeneration(style);
-            });
-            imageCard.querySelector('.like-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleFavorite(imageData, e.currentTarget);
-            });
+
             return imageCard;
         }
 
@@ -848,7 +904,7 @@
         }
         
         async function generateImageWithRetry(prompt, retries = 3, delay = 1000) {
-             const enhancedPrompt = `${prompt}, ${getRandomItems(randomKeywords.hair, 1)}, ${getRandomItems(randomKeywords.outfit, 1)}, ${getRandomItems(randomKeywords.setting, 1)}, ${getRandomItems(randomKeywords.artStyle, 1)}.`;
+             const enhancedPrompt = `${prompt}, ${getRandomItems(randomKeywords.hair, 1)}, ${getRandomItems(randomKeywords.outfit, 2).join(', ')}, ${getRandomItems(randomKeywords.setting, 1)}, ${getRandomItems(randomKeywords.artStyle, 1)}, ${getRandomItems(randomKeywords.bodyDetails, 2).join(', ')}, ${getRandomItems(randomKeywords.expression, 1)}, ${getRandomItems(randomKeywords.mood, 1)}.`;
             const fullPrompt = `masterpiece, best quality, ultra-detailed, photorealistic, 8k, sharp focus, detailed beautiful face. ${enhancedPrompt} aspect ratio 2:3, raw style. Negative prompt: ugly, blurry, bad anatomy, disfigured, poorly drawn face, mutation, mutated, extra limb, dull eyes, bad hands, missing fingers, low quality, jpeg artifacts, text, watermark, signature, cartoon, 3d, deformed.`;
 
             for (let i = 0; i < retries; i++) {
@@ -902,21 +958,150 @@
             }
         }
 
-        async function callTextGenerationAPI(prompt) { /* ... same as previous version ... */ }
-        async function callTTSAPI(text) { /* ... same as previous version ... */ }
+        async function callTextGenerationAPI(prompt) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (!response.ok) throw new Error(`文字 API 請求失敗: ${response.status}`);
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0) return result.candidates[0].content.parts[0].text;
+            else throw new Error('文字 API 未返回有效的內容。');
+        }
+
+        async function callTTSAPI(text) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: `請用溫柔、富有磁性的年輕女性聲音朗讀以下內容：${text}` }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zubenelgenubi" } }
+                    }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (!response.ok) throw new Error(`TTS API 請求失敗: ${response.status}`);
+            const result = await response.json();
+            const part = result?.candidates?.[0]?.content?.parts?.[0];
+            if (part?.inlineData?.data && part?.inlineData?.mimeType.startsWith("audio/")) {
+                return {
+                    audioData: part.inlineData.data,
+                    sampleRate: parseInt(part.inlineData.mimeType.match(/rate=(\d+)/)[1], 10)
+                };
+            } else {
+                throw new Error('TTS API 未返回有效的音訊資料。');
+            }
+        }
 
         // --- Utility & Background Animation ---
-        function base64ToArrayBuffer(base64) { /* ... same as previous version ... */ }
-        function pcmToWav(pcmData, sampleRate) { /* ... same as previous version ... */ }
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcmData, sampleRate) {
+            const numChannels = 1;
+            const bitsPerSample = 16;
+            const blockAlign = (numChannels * bitsPerSample) / 8;
+            const byteRate = sampleRate * blockAlign;
+            const dataSize = pcmData.length * (bitsPerSample / 8);
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+            function writeString(view, offset, string) {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            }
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + dataSize, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitsPerSample, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, dataSize, true);
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+            return new Blob([view], { type: 'audio/wav' });
+        }
+        
         const canvas = document.getElementById('background-canvas');
         const ctx = canvas.getContext('2d');
         let particlesArray;
-        class Particle { /* ... same as previous version ... */ }
-        function initParticles() { /* ... same as previous version ... */ }
-        function animateParticles() { /* ... same as previous version ... */ }
-        window.addEventListener('resize', () => { /* ... same as previous version ... */ });
+
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x; this.y = y; this.directionX = directionX; this.directionY = directionY; this.size = size; this.color = color;
+            }
+            draw() {
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false); ctx.fillStyle = this.color; ctx.fill();
+            }
+            update() {
+                if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
+                if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
+                this.x += this.directionX;
+                this.y += this.directionY;
+                this.draw();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            let numberOfParticles = (canvas.height * canvas.width) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = (Math.random() * 2) + 1;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * .4) - .2;
+                let directionY = (Math.random() * .4) - .2;
+                let color = 'rgba(139, 92, 246, 0.3)';
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        function animateParticles() {
+            requestAnimationFrame(animateParticles);
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = innerWidth; canvas.height = innerHeight; initParticles();
+        });
         
         // --- Loading Animation ---
+        function startSilhouetteAnimation() {
+            const silhouettes = [
+                'data/images/g1.jpg',
+                'data/images/g2.jpg',
+                'data/images/g3.jpg',];
+
+            silhouetteContainer.innerHTML = silhouettes.map(src => `<img src="${src}" class="loading-silhouette">`).join('');
+            
+            const silhouetteElements = document.querySelectorAll('.loading-silhouette');
+            let currentIndex = 0;
+            silhouetteElements[currentIndex].classList.add('visible');
+
+            setInterval(() => {
+                silhouetteElements[currentIndex].classList.remove('visible');
+                currentIndex = (currentIndex + 1) % silhouetteElements.length;
+                silhouetteElements[currentIndex].classList.add('visible');
+            }, 3000);
+        }
         const loadingCanvas = document.getElementById('loading-canvas');
         const loadingCtx = loadingCanvas.getContext('2d');
         let petals = [];
@@ -964,6 +1149,44 @@
             loadingCtx.clearRect(0, 0, loadingCanvas.width, loadingCanvas.height);
             petals.forEach(petal => petal.animate());
             requestAnimationFrame(animateLoading);
+        }
+        
+        // --- Music Player ---
+        function setupMusic() {
+            const synth = new Tone.FMSynth({
+                harmonicity: 3.01,
+                modulationIndex: 14,
+                envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 1 },
+                modulation: { type: "sine" },
+                modulationEnvelope: { attack: 0.01, decay: 0.5, sustain: 0, release: 0.5 }
+            }).toDestination();
+            const reverb = new Tone.Reverb({ decay: 8, wet: 0.4 }).toDestination();
+            synth.connect(reverb);
+            
+            const notes = ["C4", "E4", "G4", "A4", "F4", "D4", "B3"];
+            let noteIndex = 0;
+            
+            musicPlayer = new Tone.Loop(time => {
+                let note = notes[noteIndex % notes.length];
+                synth.triggerAttackRelease(note, "8n", time);
+                noteIndex++;
+            }, "2n").start(0);
+        }
+        
+        function toggleMusic() {
+            if (!musicPlayer) {
+                setupMusic();
+            }
+            if (isMusicPlaying) {
+                Tone.Transport.pause();
+                musicOnIcon.style.display = 'none';
+                musicOffIcon.style.display = 'block';
+            } else {
+                Tone.Transport.start();
+                musicOnIcon.style.display = 'block';
+                musicOffIcon.style.display = 'none';
+            }
+            isMusicPlaying = !isMusicPlaying;
         }
 
         // --- Initialization ---
